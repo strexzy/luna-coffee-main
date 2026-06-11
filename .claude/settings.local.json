@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp *)",
+      "Bash(git -C /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main status)",
+      "Bash(mkdir -p /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main/.claude/rules)",
+      "Bash(mv /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main/fsd.md /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main/mocks.md /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main/.claude/rules/)",
+      "Bash(git init *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'chore: документация, правила и ассеты проекта *)",
+      "Bash(git push *)"
+    ]
+  }
+}
