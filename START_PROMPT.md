@@ -2,12 +2,14 @@
 это моя выпускная квалификационная работа.
 
 Прежде чем что-либо делать:
+
 1. Прочитай `CLAUDE.md` в корне — это главные правила проекта.
 2. Прочитай `docs/TZ.md` — техническое задание, от него не отклоняйся.
 3. Прочитай `docs/ROADMAP.md` — мы идём строго по фазам.
 4. Прочитай правила в `.claude/rules/` — FSD, моки, соглашения.
 
 Ключевое:
+
 - Стек зафиксирован (Next.js App Router, TypeScript strict, Zustand, Axios,
   RHF + Zod, Tailwind, Shadcn/UI, next-pwa). Новые зависимости — только спросив.
 - Архитектура — Feature Sliced Design, строго по правилам слоёв.
@@ -17,14 +19,15 @@
 - Скриншоты всех экранов приложения из figma можно найти в папке figma screens, по их названиям сможешь понять, что на них изображено
 - Пусть и кривая но все же разметка для +- понимания находится в папке markup
 - Для работы над проектом был создан репо на git, я хочу, чтобы ты его вел. Репозиторий я только создал, ничего еще туда не пушил: echo "# luna-coffee-main" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/strexzy/luna-coffee-main.git
-git push -u origin main
+  git init
+  git add README.md
+  git commit -m "first commit"
+  git branch -M main
+  git remote add origin https://github.com/strexzy/luna-coffee-main.git
+  git push -u origin main
 
 Начни с **Фазы 0** из роадмапа (каркас проекта). По ходу:
+
 - держись текущей фазы, не убегай вперёд;
 - в конце фазы прогони type-check и lint, дай краткий отчёт;
 - если что-то в ТЗ непонятно или хочется отклониться — сначала спроси меня.

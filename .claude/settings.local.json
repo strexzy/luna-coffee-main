@@ -9,7 +9,22 @@
       "Bash(git remote *)",
       "Bash(git add *)",
       "Bash(git commit -m 'chore: документация, правила и ассеты проекта *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git mv *)",
+      "Read(//private/tmp/**)",
+      "Bash(npx -y create-next-app@latest luna-scaffold --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --no-turbopack --skip-install)",
+      "Bash(rm -rf .git README.md CLAUDE.md AGENTS.md .gitignore)",
+      "Bash(cp -R . /Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main/)",
+      "Bash(rm -rf /tmp/luna-scaffold)",
+      "Bash(npm pkg *)",
+      "Bash(npm install *)",
+      "Bash(npm ls *)",
+      "Bash(npx -y shadcn@latest init -y -b neutral)",
+      "Bash(npx *)",
+      "Bash(npm run *)",
+      "mcp__ref-context__ref_read_url",
+      "Bash(echo \"exit code: $?\")",
+      "Bash(git commit -m 'feat: каркас проекта — Next.js, Tailwind, Shadcn/UI, FSD, линтинг *)"
     ]
   }
 }

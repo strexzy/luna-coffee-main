@@ -16,19 +16,19 @@
 
 ## Технологический стек (НЕ менять без явного указания)
 
-| Назначение | Технология |
-|---|---|
-| Фреймворк | Next.js (App Router, версия 15+) |
-| Язык | TypeScript (strict) |
-| Состояние | Zustand |
-| HTTP-клиент | Axios |
-| Формы | React Hook Form |
-| Валидация | Zod |
-| Стили | Tailwind CSS |
-| UI-компоненты | Shadcn/UI |
-| Реал-тайм | WebSocket (нативный, обёрнут в хук) |
-| PWA | next-pwa (Workbox) |
-| Линтинг | ESLint + Prettier |
+| Назначение    | Технология                          |
+| ------------- | ----------------------------------- |
+| Фреймворк     | Next.js (App Router, версия 15+)    |
+| Язык          | TypeScript (strict)                 |
+| Состояние     | Zustand                             |
+| HTTP-клиент   | Axios                               |
+| Формы         | React Hook Form                     |
+| Валидация     | Zod                                 |
+| Стили         | Tailwind CSS                        |
+| UI-компоненты | Shadcn/UI                           |
+| Реал-тайм     | WebSocket (нативный, обёрнут в хук) |
+| PWA           | next-pwa (Workbox)                  |
+| Линтинг       | ESLint + Prettier                   |
 
 Запрещено вводить: Redux, Vite, styled-components, MUI, react-query/SWR,
 axios-альтернативы. Если кажется, что нужна новая зависимость — сначала спроси.

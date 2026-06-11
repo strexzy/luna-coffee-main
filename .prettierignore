@@ -1,0 +1,9 @@
+node_modules
+.next
+out
+build
+public
+markup
+assets
+figma screens
+package-lock.json
