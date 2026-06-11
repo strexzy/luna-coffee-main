@@ -28,16 +28,23 @@ export const getProducts = async (category?: string): Promise<Product[]> => {
 
 ## Где лежат моки
 
+Решение зафиксировано 2026-06-12: мок-данные сущностей живут РЯДОМ с их типами
+и api-функциями в `entities/*/api/`, иначе shared пришлось бы импортировать
+типы из entities — импорт вверх, запрещённый правилом слоёв FSD.
+
 ```
-shared/api/mocks/
-├── products.mock.ts    # мок-каталог
-├── orders.mock.ts      # мок-заказы
-├── users.mock.ts       # мок-пользователи (три роли)
+shared/api/mocks/           # только домено-независимая инфраструктура
+├── mock-helpers.ts         # withDelay, maybeFail — имитация сети
 └── index.ts
+
+entities/product/api/       # данные + api-функции сущности (фаза 2)
+├── product.api.ts          # if (USE_MOCKS) → мок, иначе axios
+└── product.mock.ts         # мок-каталог
 ```
 
 Мок-функции имитируют сеть: небольшая задержка (200–500мс через setTimeout/
-Promise) и иногда — ошибки, чтобы можно было проверить обработку.
+Promise) и иногда — ошибки, чтобы можно было проверить обработку. Хелперы
+задержки/ошибок — общие, из `shared/api/mocks`.
 
 ## Контракты типов — единые
 

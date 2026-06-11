@@ -24,7 +24,11 @@
       "Bash(npm run *)",
       "mcp__ref-context__ref_read_url",
       "Bash(echo \"exit code: $?\")",
-      "Bash(git commit -m 'feat: каркас проекта — Next.js, Tailwind, Shadcn/UI, FSD, линтинг *)"
+      "Bash(git commit -m 'feat: каркас проекта — Next.js, Tailwind, Shadcn/UI, FSD, линтинг *)",
+      "Bash(sed -n '90,115p' src/shared/ui/card.tsx)",
+      "Bash(sed -n '95,110p' src/shared/ui/empty.tsx)",
+      "Bash(sed -n '155,175p' src/shared/ui/dialog.tsx)",
+      "Bash(git commit -m 'feat: слой shared — конфиг, axios, ui-примитивы, утилиты, сторы *)"
     ]
   }
 }
