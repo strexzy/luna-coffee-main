@@ -45,6 +45,23 @@ Claude Code идёт по фазам последовательно. Не пер
       Уйдёт при переработке экрана статуса под WebSocket.
 - [x] **[Фаза 6] Нет кнопки выхода в UI.** `useLogout` реализован, но не подключён —
       добавить «Выйти» в навбар (особенно для зон staff/admin).
+      Из ревью Фазы 6 (реал-тайм) — обязательны к устранению на Фазе 7:
+
+- [ ] **[Фаза 7] Мок мутирует общие объекты заказа.** `updateOrderStatus` делает
+      `order.status = status` прямо на элементе `MOCK_ORDERS`, а `getOrders`
+      отдаёт `[...MOCK_ORDERS]` (копия массива, общие ссылки на объекты).
+      Возвращать новый объект, а не мутировать (`entities/order/api/order.api.ts`).
+- [ ] **[Фаза 7] Непроверенный каст `payload as Order` из BroadcastChannel.**
+      Проверять форму payload (есть `id`/`number`/`items`) перед добавлением в
+      очередь — иначе чужой/битый `postMessage` уронит `OrderCard`
+      (`widgets/orders-queue/model/use-orders-queue.ts`).
+- [ ] **[Фаза 7] Таймер авто-прогрессии не гасится при уходе клиента с экрана.**
+      `useOrderSocket` отписывается, но `startMockProgression` докручивает до
+      `ready`, дёргая колбэки без подписчиков. Останавливать прогрессию на
+      анмаунте (`shared/realtime/order-hub.ts`, `use-order-socket.ts`).
+- [ ] **[Фаза 7] `JSON.parse` в `onmessage` реального WS без try/catch.** Битый
+      фрейм с бэка кинет исключение в обработчике (`shared/realtime/use-order-socket.ts`).
+
 - [ ] **[Фаза 9] `selectCartCount` — мёртвый код.** Либо сделать бейдж количества на
       иконке корзины в навбаре, либо удалить (`shared/store/cart.store.ts`).
 - [ ] **[Фаза 9] `createOrder` (мок): рост `MOCK_ORDERS` и коллизии номеров.**
