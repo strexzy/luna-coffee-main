@@ -2,6 +2,7 @@
 export { useOrderSocket } from './use-order-socket';
 export {
   subscribeOrderStatus,
+  subscribeAllOrderStatus,
   publishOrderStatus,
   subscribeNewOrders,
   publishNewOrder,

@@ -1,9 +1,10 @@
 import { getNextOrderStatus, type OrderStatus } from '@shared/types';
 
 // Мок-хаб реалтайма: in-memory pub/sub + «кухня» по таймеру + кросс-вкладочная
-// доставка через BroadcastChannel. Два потока событий:
-//   • смена статуса существующего заказа (status);
-//   • приход нового заказа в очередь бариста (new).
+// доставка через BroadcastChannel. Потоки событий:
+//   • смена статуса конкретного заказа (status) — для экрана статуса клиента;
+//   • любая смена статуса (statusAll) — для очереди бариста;
+//   • приход нового заказа (new) — для очереди бариста.
 // Реального WebSocket-сервера нет (ТЗ/mocks.md); интерфейс useOrderSocket и
 // подписок от этого не зависит — переход на реальный сокет бесшовный.
 //
@@ -15,11 +16,13 @@ import { getNextOrderStatus, type OrderStatus } from '@shared/types';
 // вкладками одного окна.
 
 type StatusListener = (status: OrderStatus) => void;
+type AllStatusListener = (orderId: string, status: OrderStatus) => void;
 // Новый заказ передаётся как unknown: тип Order живёт в entities, а shared не
 // может его импортировать. Потребитель (очередь бариста) сужает тип у себя.
 type NewOrderListener = (order: unknown) => void;
 
 const statusListeners = new Map<string, Set<StatusListener>>();
+const allStatusListeners = new Set<AllStatusListener>();
 const newOrderListeners = new Set<NewOrderListener>();
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 
@@ -28,31 +31,11 @@ const PROGRESSION_STEP_MS = 5000;
 
 const notifyStatus = (orderId: string, status: OrderStatus): void => {
   statusListeners.get(orderId)?.forEach((listener) => listener(status));
+  allStatusListeners.forEach((listener) => listener(orderId, status));
 };
 
 const notifyNewOrder = (order: unknown): void => {
   newOrderListeners.forEach((listener) => listener(order));
-};
-
-// Таймерная прогрессия статуса new→…→ready. Запускается один раз на заказ.
-export const startMockProgression = (
-  orderId: string,
-  current: OrderStatus,
-): void => {
-  if (timers.has(orderId)) return;
-  const scheduleNext = (status: OrderStatus) => {
-    const next = getNextOrderStatus(status);
-    if (!next) {
-      timers.delete(orderId);
-      return;
-    }
-    const timer = setTimeout(() => {
-      notifyStatus(orderId, next);
-      scheduleNext(next);
-    }, PROGRESSION_STEP_MS);
-    timers.set(orderId, timer);
-  };
-  scheduleNext(current);
 };
 
 // Останавливает авто-прогрессию (управление статусом перешло к бариста).
@@ -83,7 +66,8 @@ const getChannel = (): BroadcastChannel | null => {
     channel.onmessage = (event: MessageEvent<ChannelMessage>) => {
       const message = event.data;
       if (message.kind === 'status') {
-        // Внешнее обновление (бариста) отменяет авто-«кухню» в этой вкладке.
+        // Внешнее обновление (бариста/другая вкладка) отменяет авто-«кухню»
+        // в этой вкладке, чтобы таймер и ручное управление не конфликтовали.
         stopMockProgression(message.orderId);
         notifyStatus(message.orderId, message.status);
       } else {
@@ -94,6 +78,43 @@ const getChannel = (): BroadcastChannel | null => {
   return channel;
 };
 
+export const publishOrderStatus = (
+  orderId: string,
+  status: OrderStatus,
+): void => {
+  notifyStatus(orderId, status);
+  getChannel()?.postMessage({ kind: 'status', orderId, status });
+};
+
+export const publishNewOrder = (order: unknown): void => {
+  notifyNewOrder(order);
+  getChannel()?.postMessage({ kind: 'new', order });
+};
+
+// Таймерная прогрессия статуса new→…→ready. Запускается один раз на заказ.
+// Каждый шаг идёт через publishOrderStatus — значит виден и экрану клиента, и
+// очереди бариста (в т.ч. в другой вкладке), а не только локально.
+export const startMockProgression = (
+  orderId: string,
+  current: OrderStatus,
+): void => {
+  if (timers.has(orderId)) return;
+  const scheduleNext = (status: OrderStatus) => {
+    const next = getNextOrderStatus(status);
+    if (!next) {
+      timers.delete(orderId);
+      return;
+    }
+    const timer = setTimeout(() => {
+      publishOrderStatus(orderId, next);
+      scheduleNext(next);
+    }, PROGRESSION_STEP_MS);
+    timers.set(orderId, timer);
+  };
+  scheduleNext(current);
+};
+
+// Подписка экрана клиента на статус конкретного заказа.
 export const subscribeOrderStatus = (
   orderId: string,
   listener: StatusListener,
@@ -108,12 +129,15 @@ export const subscribeOrderStatus = (
   };
 };
 
-export const publishOrderStatus = (
-  orderId: string,
-  status: OrderStatus,
-): void => {
-  notifyStatus(orderId, status);
-  getChannel()?.postMessage({ kind: 'status', orderId, status });
+// Подписка очереди бариста на смену статуса ЛЮБОГО заказа.
+export const subscribeAllOrderStatus = (
+  listener: AllStatusListener,
+): (() => void) => {
+  getChannel();
+  allStatusListeners.add(listener);
+  return () => {
+    allStatusListeners.delete(listener);
+  };
 };
 
 // Подписка очереди бариста на входящие заказы (ТЗ п. 3.5).
@@ -125,9 +149,4 @@ export const subscribeNewOrders = (
   return () => {
     newOrderListeners.delete(listener);
   };
-};
-
-export const publishNewOrder = (order: unknown): void => {
-  notifyNewOrder(order);
-  getChannel()?.postMessage({ kind: 'new', order });
 };

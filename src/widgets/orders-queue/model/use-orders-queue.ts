@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { getOrders, registerIncomingOrder, type Order } from '@entities/order';
 import { useUpdateOrderStatus } from '@features/update-order-status';
 import { ApiError } from '@shared/api';
-import { subscribeNewOrders } from '@shared/realtime';
+import { subscribeAllOrderStatus, subscribeNewOrders } from '@shared/realtime';
 import { getNextOrderStatus } from '@shared/types';
 
 interface UseOrdersQueue {
@@ -27,7 +27,13 @@ export const useOrdersQueue = (): UseOrdersQueue => {
     let active = true;
     getOrders()
       .then((list) => {
-        if (active) setOrders(list);
+        if (!active) return;
+        // Мёрж, а не замена: realtime-заказы, прилетевшие за время загрузки и
+        // отсутствующие в серверном снимке, сохраняем (иначе теряются).
+        setOrders((prev) => {
+          const pending = prev.filter((p) => !list.some((l) => l.id === p.id));
+          return [...pending, ...list];
+        });
       })
       .catch((e: unknown) => {
         if (active)
@@ -53,6 +59,17 @@ export const useOrdersQueue = (): UseOrdersQueue => {
       registerIncomingOrder(order);
       setOrders((prev) =>
         prev.some((o) => o.id === order.id) ? prev : [order, ...prev],
+      );
+    });
+    return unsubscribe;
+  }, []);
+
+  // Смена статуса любого заказа (авто-«кухня» у клиента, другой бариста)
+  // отражается в очереди — чтобы вид бариста не расходился с реальным статусом.
+  useEffect(() => {
+    const unsubscribe = subscribeAllOrderStatus((orderId, status) => {
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? { ...o, status } : o)),
       );
     });
     return unsubscribe;
