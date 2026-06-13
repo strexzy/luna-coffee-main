@@ -53,6 +53,16 @@ export interface ProductRating {
   count: number;
 }
 
+// Выбор пользователя в конструкторе. milk/temperature/sweetness опциональны —
+// их может не быть у конкретного продукта (десерт, чай без молока).
+export interface DrinkSelection {
+  size: ProductSize;
+  milk?: MilkType;
+  temperature?: DrinkTemperature;
+  sweetness?: number; // 0..100
+  extraIds: string[];
+}
+
 export interface Product {
   id: string;
   name: string;

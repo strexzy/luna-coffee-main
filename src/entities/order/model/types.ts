@@ -1,14 +1,12 @@
 import type { CartItem, OrderStatus } from '@shared/types';
 
 // Позиция заказа — снимок строки корзины на момент оформления.
-// Строится из CartItem (shared), чтобы не дублировать контракт между слоями;
-// добавляем изображение для миниатюры в составе заказа.
+// Берём подмножество CartItem (shared), чтобы не дублировать контракт между
+// слоями; в заказе не нужен ключ мерджа корзины (id строки).
 export type OrderItem = Pick<
   CartItem,
-  'productId' | 'name' | 'unitPrice' | 'quantity' | 'optionsLabel'
-> & {
-  imageUrl: string;
-};
+  'productId' | 'name' | 'imageUrl' | 'unitPrice' | 'quantity' | 'optionsLabel'
+>;
 
 export interface Order {
   id: string;

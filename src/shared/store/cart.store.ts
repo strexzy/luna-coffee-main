@@ -48,3 +48,7 @@ export const useCartStore = create<CartState>((set) => ({
 // селективно: useCartStore(selectCartTotal).
 export const selectCartTotal = (state: CartState): number =>
   state.items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
+
+// Суммарное количество единиц во всех позициях (для бейджа/саммари).
+export const selectCartCount = (state: CartState): number =>
+  state.items.reduce((sum, i) => sum + i.quantity, 0);
