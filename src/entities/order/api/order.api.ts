@@ -1,5 +1,7 @@
 import { apiInstance, ApiError, withDelay } from '@shared/api';
 import { USE_MOCKS } from '@shared/config';
+import { publishOrderStatus, stopMockProgression } from '@shared/realtime';
+import type { OrderStatus } from '@shared/types';
 
 import type { CreateOrderPayload, Order } from '../model/types';
 import { MOCK_ORDERS } from './order.mock';
@@ -51,5 +53,28 @@ export const createOrder = async (
     return withDelay(order);
   }
   const { data } = await apiInstance.post<Order>('/orders', payload);
+  return data;
+};
+
+// Смена статуса заказа (действие бариста). В моке: правим заказ, гасим
+// авто-прогрессию (управление перешло к сотруднику) и публикуем статус в хаб,
+// чтобы подписанные клиенты увидели обновление в реальном времени.
+export const updateOrderStatus = async (
+  orderId: string,
+  status: OrderStatus,
+): Promise<Order> => {
+  if (USE_MOCKS) {
+    const order = MOCK_ORDERS.find((o) => o.id === orderId);
+    if (!order) {
+      throw new ApiError('Заказ не найден', 404);
+    }
+    order.status = status;
+    stopMockProgression(orderId);
+    publishOrderStatus(orderId, status);
+    return withDelay(order);
+  }
+  const { data } = await apiInstance.patch<Order>(`/orders/${orderId}/status`, {
+    status,
+  });
   return data;
 };

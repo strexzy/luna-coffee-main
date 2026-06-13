@@ -1,10 +1,5 @@
-import { PageStub } from '@app/_components/page-stub';
+import { OrdersQueue } from '@widgets/orders-queue';
 
 export default function StaffQueuePage() {
-  return (
-    <PageStub
-      title="Очередь заказов"
-      description="Входящие заказы и смена статуса — Фаза 6."
-    />
-  );
+  return <OrdersQueue />;
 }

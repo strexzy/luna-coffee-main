@@ -3,7 +3,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { OrderStatusBadge } from '@entities/order';
+import { OrderStatusBadge, type Order } from '@entities/order';
+import { useTrackOrder } from '@features/track-order';
 import { ROUTES } from '@shared/config';
 import { formatDate, formatPrice, formatTime } from '@shared/lib';
 import { Button, EmptyState, Spinner } from '@shared/ui';
@@ -14,8 +15,8 @@ interface Props {
   orderId: string;
 }
 
-// Экран статуса заказа. В Фазе 5 — текущий статус из данных заказа; обновление
-// в реальном времени (WebSocket) подключится в Фазе 6.
+// Экран статуса заказа. Загружает заказ, затем показывает статус в реальном
+// времени (мок-сокет с авто-прогрессией; смена статуса бариста тоже прилетает).
 export const OrderStatus = ({ orderId }: Props) => {
   const { order, status, errorMessage } = useOrder(orderId);
 
@@ -51,15 +52,29 @@ export const OrderStatus = ({ orderId }: Props) => {
     return null;
   }
 
+  return <OrderReceipt order={order} />;
+};
+
+// Чек заказа с живым статусом. Вынесен отдельно, чтобы хук useTrackOrder
+// вызывался безусловно (только когда заказ уже загружен).
+const OrderReceipt = ({ order }: { order: Order }) => {
+  const liveStatus = useTrackOrder(order.id, order.status);
+  const isReady = liveStatus === 'ready';
+
   return (
     <div className="mx-auto w-full max-w-2xl px-4 py-6">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between">
         <div>
           <p className="text-sm text-muted-foreground">Номер заказа</p>
           <p className="text-3xl font-bold text-primary">№ {order.number}</p>
         </div>
-        <OrderStatusBadge status={order.status} className="h-7 px-3 text-sm" />
+        <OrderStatusBadge status={liveStatus} className="h-7 px-3 text-sm" />
       </div>
+      <p className="mb-6 text-sm text-muted-foreground">
+        {isReady
+          ? 'Заказ готов — можно забирать.'
+          : 'Статус обновляется автоматически.'}
+      </p>
 
       <div className="mb-6 grid grid-cols-2 gap-3 text-sm">
         <div>

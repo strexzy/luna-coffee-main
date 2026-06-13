@@ -48,7 +48,12 @@
       "Bash(/usr/bin/wc -l)",
       "Bash(/usr/bin/pkill -9 -f \"next dev\")",
       "Bash(/usr/bin/pkill -9 -f \"next-server\")",
-      "Bash(git commit -m 'feat: авторизация — формы входа/регистрации, сессия, 401-перехватчик \\(Фаза 4\\) *)"
+      "Bash(git commit -m 'feat: авторизация — формы входа/регистрации, сессия, 401-перехватчик \\(Фаза 4\\) *)",
+      "Bash(mkdir -p /tmp/luna-verify)",
+      "Read(//tmp/**)",
+      "Bash(npm init *)",
+      "Bash(npm i *)",
+      "Bash(node -e \"console.log\\(require\\('playwright/package.json'\\).version\\)\")"
     ]
   }
 }
