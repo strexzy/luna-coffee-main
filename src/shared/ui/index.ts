@@ -30,4 +30,6 @@ export { Toaster } from './sonner';
 export { toast } from 'sonner';
 export { Skeleton } from './skeleton';
 export { Spinner } from './spinner';
+export { Slider } from './slider';
+export { Switch } from './switch';
 export { EmptyState } from './empty-state';
