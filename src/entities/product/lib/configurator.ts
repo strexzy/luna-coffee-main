@@ -12,6 +12,8 @@ const TEMPERATURE_LABELS: Record<DrinkTemperature, string> = {
 };
 
 // Выбор по умолчанию: первый размер/молоко/температура, сладость 50%.
+// TODO (Фаза 9): дефолтный размер сделать M, а не первый из списка (сейчас S).
+// В макете по умолчанию подсвечен средний размер.
 export const getDefaultSelection = (product: Product): DrinkSelection => {
   const options = product.options;
   return {
