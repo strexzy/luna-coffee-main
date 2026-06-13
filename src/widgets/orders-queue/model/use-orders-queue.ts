@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 
-import { getOrders, type Order } from '@entities/order';
+import { getOrders, registerIncomingOrder, type Order } from '@entities/order';
 import { useUpdateOrderStatus } from '@features/update-order-status';
 import { ApiError } from '@shared/api';
+import { subscribeNewOrders } from '@shared/realtime';
 import { getNextOrderStatus } from '@shared/types';
 
 interface UseOrdersQueue {
@@ -40,6 +41,21 @@ export const useOrdersQueue = (): UseOrdersQueue => {
     return () => {
       active = false;
     };
+  }, []);
+
+  // Входящие заказы в реальном времени (ТЗ 3.5): новый заказ клиента прилетает
+  // по реалтайм-каналу (в т.ч. из другой вкладки) и добавляется в начало
+  // очереди. registerIncomingOrder кладёт его в мок-список, чтобы бариста мог
+  // менять статус.
+  useEffect(() => {
+    const unsubscribe = subscribeNewOrders((payload) => {
+      const order = payload as Order;
+      registerIncomingOrder(order);
+      setOrders((prev) =>
+        prev.some((o) => o.id === order.id) ? prev : [order, ...prev],
+      );
+    });
+    return unsubscribe;
   }, []);
 
   const advanceOrder = async (order: Order): Promise<void> => {

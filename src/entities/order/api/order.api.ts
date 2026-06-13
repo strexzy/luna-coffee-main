@@ -1,6 +1,10 @@
 import { apiInstance, ApiError, withDelay } from '@shared/api';
 import { USE_MOCKS } from '@shared/config';
-import { publishOrderStatus, stopMockProgression } from '@shared/realtime';
+import {
+  publishNewOrder,
+  publishOrderStatus,
+  stopMockProgression,
+} from '@shared/realtime';
 import type { OrderStatus } from '@shared/types';
 
 import type { CreateOrderPayload, Order } from '../model/types';
@@ -10,7 +14,10 @@ import { MOCK_ORDERS } from './order.mock';
 
 export const getOrders = async (): Promise<Order[]> => {
   if (USE_MOCKS) {
-    return withDelay(MOCK_ORDERS);
+    // Копия, а не сам MOCK_ORDERS: иначе состояние очереди разделяет ссылку с
+    // мок-массивом, и его мутации (registerIncomingOrder/createOrder) не дают
+    // React увидеть изменение — заказ «есть» в массиве, но UI не ререндерится.
+    return withDelay([...MOCK_ORDERS]);
   }
   const { data } = await apiInstance.get<Order[]>('/orders');
   return data;
@@ -50,10 +57,24 @@ export const createOrder = async (
     // Кладём в мок-список, чтобы экран статуса нашёл заказ через getOrderById.
     // Живёт до перезагрузки (без бэка персистентности нет) — допустимо.
     MOCK_ORDERS.unshift(order);
+    // Транслируем заказ в очередь бариста (в т.ч. в другую вкладку) — ТЗ 3.5
+    // «входящие заказы в реальном времени».
+    publishNewOrder(order);
     return withDelay(order);
   }
   const { data } = await apiInstance.post<Order>('/orders', payload);
   return data;
+};
+
+// Регистрирует заказ, пришедший из другой вкладки по реалтайм-каналу, в
+// мок-списке этой вкладки. Нужно, чтобы бариста мог менять ему статус
+// (updateOrderStatus ищет заказ в MOCK_ORDERS). В реальном режиме не нужен —
+// заказы приходят с сервера.
+export const registerIncomingOrder = (order: Order): void => {
+  if (!USE_MOCKS) return;
+  if (!MOCK_ORDERS.some((o) => o.id === order.id)) {
+    MOCK_ORDERS.unshift(order);
+  }
 };
 
 // Смена статуса заказа (действие бариста). В моке: правим заказ, гасим

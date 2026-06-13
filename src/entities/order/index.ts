@@ -6,6 +6,7 @@ export {
   getOrderById,
   createOrder,
   updateOrderStatus,
+  registerIncomingOrder,
 } from './api/order.api';
 export { OrderCard } from './ui/order-card';
 export { OrderStatusBadge } from './ui/order-status-badge';
