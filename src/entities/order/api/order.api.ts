@@ -45,6 +45,9 @@ export const createOrder = async (
       createdAt: now.toISOString(),
       comment: payload.comment,
     };
+    // Кладём в мок-список, чтобы экран статуса нашёл заказ через getOrderById.
+    // Живёт до перезагрузки (без бэка персистентности нет) — допустимо.
+    MOCK_ORDERS.unshift(order);
     return withDelay(order);
   }
   const { data } = await apiInstance.post<Order>('/orders', payload);

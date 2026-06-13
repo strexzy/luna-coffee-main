@@ -1,7 +1,5 @@
-import { PageStub } from '@app/_components/page-stub';
+import { CartView } from '@widgets/cart';
 
 export default function CartPage() {
-  return (
-    <PageStub title="Корзина" description="Состав заказа и итог — Фаза 5." />
-  );
+  return <CartView />;
 }
