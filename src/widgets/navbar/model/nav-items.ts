@@ -3,7 +3,13 @@ import { ROUTES } from '@shared/config';
 // Ключ иконки, а не сам компонент: конфиг сериализуем и передаётся из
 // серверного layout в клиентский Navbar без ошибки сериализации.
 // Сопоставление ключ → lucide-иконка живёт в ui/navbar.tsx.
-export type NavIconKey = 'home' | 'menu' | 'cart' | 'profile' | 'queue' | 'stats';
+export type NavIconKey =
+  | 'home'
+  | 'menu'
+  | 'cart'
+  | 'profile'
+  | 'queue'
+  | 'stats';
 
 export interface NavItem {
   href: string;

@@ -40,7 +40,15 @@
       "Bash(/usr/bin/grep -iE \"next|node .*dev\")",
       "Bash(/usr/bin/grep -v grep)",
       "Bash(/usr/bin/grep -v \"next-server\\\\|cursor\\\\|Code\")",
-      "Bash(/usr/bin/head)"
+      "Bash(/usr/bin/head)",
+      "Bash(/bin/kill 220)",
+      "Bash(/bin/kill -9 220)",
+      "Bash(/usr/bin/head -2)",
+      "Bash(echo \"port 3000 free: $\\(/usr/sbin/lsof -nP -iTCP:3000 -sTCP:LISTEN)",
+      "Bash(/usr/bin/wc -l)",
+      "Bash(/usr/bin/pkill -9 -f \"next dev\")",
+      "Bash(/usr/bin/pkill -9 -f \"next-server\")",
+      "Bash(git commit -m 'feat: авторизация — формы входа/регистрации, сессия, 401-перехватчик \\(Фаза 4\\) *)"
     ]
   }
 }

@@ -1,6 +1,6 @@
-import axios from 'axios';
+import axios, { isAxiosError } from 'axios';
 
-import { API_URL } from '@shared/config';
+import { API_URL, ROUTES } from '@shared/config';
 import { useAuthStore } from '@shared/store';
 
 import { toApiError } from './api-error';
@@ -9,6 +9,9 @@ import { toApiError } from './api-error';
 // запрещены соглашениями — все запросы идут через этот экземпляр.
 export const apiInstance = axios.create({
   baseURL: API_URL,
+  // withCredentials: refresh-токен в httpOnly cookie уходит автоматически,
+  // когда появится бэкенд (ТЗ п.5). На моках безвредно.
+  withCredentials: true,
   timeout: 10_000,
 });
 
@@ -25,11 +28,29 @@ apiInstance.interceptors.response.use(
   (response) => response,
   (error: unknown) => {
     const apiError = toApiError(error);
-    // 401 — сессия недействительна: сбрасываем её централизованно.
-    // TODO: редирект на /login появится в фазе 4 (авторизация).
+
     if (apiError.status === 401) {
-      useAuthStore.getState().clearSession();
+      const url = isAxiosError(error) ? (error.config?.url ?? '') : '';
+      // На auth-эндпоинтах (login/register/refresh) 401 ожидаем — это неверные
+      // данные или отсутствие сессии. Отдаём ошибку вызывающей фиче, сессию
+      // не трогаем и никуда не редиректим.
+      const isAuthEndpoint = url.includes('/auth/');
+      // Редирект нужен только когда протух токен активной сессии, а не когда
+      // гость просто получил 401 на публичном запросе.
+      const hadSession = useAuthStore.getState().token !== null;
+
+      if (!isAuthEndpoint && hadSession) {
+        // TODO(бэкенд): перед сбросом пробовать refresh по httpOnly cookie.
+        useAuthStore.getState().clearSession();
+        if (
+          typeof window !== 'undefined' &&
+          window.location.pathname !== ROUTES.login
+        ) {
+          window.location.assign(ROUTES.login);
+        }
+      }
     }
+
     return Promise.reject(apiError);
   },
 );

@@ -11,6 +11,12 @@ export interface LoginPayload {
   password: string;
 }
 
+export interface RegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+}
+
 // Ответ авторизации: токен (в память, не в localStorage — ТЗ п.5) + пользователь.
 export interface LoginResponse {
   token: string;

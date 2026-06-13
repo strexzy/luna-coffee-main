@@ -1,7 +1,5 @@
-import { PageStub } from '@app/_components/page-stub';
+import { RegisterForm } from '@features/auth';
 
 export default function RegisterPage() {
-  return (
-    <PageStub title="Регистрация" description="Форма регистрации — Фаза 4." />
-  );
+  return <RegisterForm />;
 }

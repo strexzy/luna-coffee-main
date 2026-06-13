@@ -1,10 +1,5 @@
-import { PageStub } from '@app/_components/page-stub';
+import { LoginForm } from '@features/auth';
 
 export default function LoginPage() {
-  return (
-    <PageStub
-      title="Вход"
-      description="Форма входа и редирект по роли — Фаза 4."
-    />
-  );
+  return <LoginForm />;
 }

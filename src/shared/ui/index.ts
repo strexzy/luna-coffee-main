@@ -4,6 +4,7 @@
 export { Button, buttonVariants } from './button';
 export { Badge, badgeVariants } from './badge';
 export { Input } from './input';
+export { Label } from './label';
 export {
   Card,
   CardHeader,
@@ -25,6 +26,8 @@ export {
 } from './dialog';
 export { Modal } from './modal';
 export { Toaster } from './sonner';
+// Императивный вызов тостов — через единую точку UI, не из 'sonner' напрямую.
+export { toast } from 'sonner';
 export { Skeleton } from './skeleton';
 export { Spinner } from './spinner';
 export { EmptyState } from './empty-state';
