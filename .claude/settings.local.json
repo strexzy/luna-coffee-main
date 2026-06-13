@@ -28,7 +28,10 @@
       "Bash(sed -n '90,115p' src/shared/ui/card.tsx)",
       "Bash(sed -n '95,110p' src/shared/ui/empty.tsx)",
       "Bash(sed -n '155,175p' src/shared/ui/dialog.tsx)",
-      "Bash(git commit -m 'feat: слой shared — конфиг, axios, ui-примитивы, утилиты, сторы *)"
+      "Bash(git commit -m 'feat: слой shared — конфиг, axios, ui-примитивы, утилиты, сторы *)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('mcpServers', {}\\), indent=2, ensure_ascii=False\\)\\); proj=d.get\\('projects',{}\\).get\\('/Users/strx/Desktop/FrontendProjects/Next/luna-coffee-main',{}\\); print\\('--- project mcpServers ---'\\); print\\(json.dumps\\(proj.get\\('mcpServers',{}\\), indent=2, ensure_ascii=False\\)\\)\")",
+      "mcp__ref-context__ref_search_documentation",
+      "Bash(git commit -m 'feat: слой entities — product, order, user на моках *)"
     ]
   }
 }

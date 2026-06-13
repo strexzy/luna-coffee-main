@@ -2,6 +2,7 @@
 // только отсюда: import { Button, Modal } from '@shared/ui'.
 
 export { Button, buttonVariants } from './button';
+export { Badge, badgeVariants } from './badge';
 export { Input } from './input';
 export {
   Card,
