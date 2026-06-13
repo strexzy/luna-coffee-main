@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { MIN_PREPARATION_MINUTES, ROUTES } from '@shared/config';
@@ -26,23 +26,29 @@ export const CheckoutForm = () => {
   const total = useCartStore(selectCartTotal);
   const { submit, isPending, error } = usePlaceOrder();
 
-  // Границы времени получения считаем один раз в инициализаторе useState:
-  // Date.now() прямо в теле рендера нарушил бы чистоту (react-hooks/purity).
-  const [pickupBounds] = useState(() => ({
-    min: toLocalInput(new Date(Date.now() + MIN_PREPARATION_MINUTES * 60_000)),
-    default: toLocalInput(
-      new Date(Date.now() + (MIN_PREPARATION_MINUTES + 5) * 60_000),
-    ),
-  }));
-
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<CheckoutValues>({
     resolver: zodResolver(checkoutSchema),
-    defaultValues: { pickupTime: pickupBounds.default, comment: '' },
+    defaultValues: { pickupTime: '', comment: '' },
   });
+
+  // Дефолтное время получения проставляем на клиенте после монтирования:
+  // Date.now() в рендере на пререндере дал бы время сборки и сломал гидрацию.
+  // setValue — это RHF, не React-стейт, поэтому в эффекте безопасно. Нижнюю
+  // границу не выставляем атрибутом min (это лишь хинт пикера) — её гарантирует
+  // Zod-валидация при отправке.
+  useEffect(() => {
+    setValue(
+      'pickupTime',
+      toLocalInput(
+        new Date(Date.now() + (MIN_PREPARATION_MINUTES + 5) * 60_000),
+      ),
+    );
+  }, [setValue]);
 
   if (items.length === 0) {
     return (
@@ -99,7 +105,6 @@ export const CheckoutForm = () => {
           <Input
             id="pickupTime"
             type="datetime-local"
-            min={pickupBounds.min}
             {...register('pickupTime')}
           />
           <p className="text-xs text-muted-foreground">

@@ -12,8 +12,10 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
+import { LogoutButton } from '@features/auth';
 import { ROUTES } from '@shared/config';
 import { cn } from '@shared/lib';
+import { useAuthStore } from '@shared/store';
 
 import type { NavIconKey, NavItem } from '../model/nav-items';
 
@@ -38,6 +40,7 @@ const NAV_ICONS: Record<NavIconKey, LucideIcon> = {
 // на JS — требование ТЗ (п. 4).
 export const Navbar = ({ items }: Props) => {
   const pathname = usePathname();
+  const user = useAuthStore((s) => s.user);
 
   // Главная активна только при точном совпадении, остальные — по префиксу
   // (чтобы /menu/123 подсвечивал «Меню»).
@@ -67,6 +70,8 @@ export const Navbar = ({ items }: Props) => {
                 {item.label}
               </Link>
             ))}
+            {/* Кнопка выхода видна только при активной сессии. */}
+            {user ? <LogoutButton /> : null}
           </nav>
         </div>
       </header>

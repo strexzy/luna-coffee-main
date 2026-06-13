@@ -11,14 +11,17 @@ const TEMPERATURE_LABELS: Record<DrinkTemperature, string> = {
   iced: 'со льдом',
 };
 
-// Выбор по умолчанию: первый размер/молоко/температура, сладость 50%.
-// TODO (Фаза 6, код-ревью): дефолтный размер сделать M, а не первый из списка
-// (сейчас S) — иначе цена быстрого «+» в каталоге (220₽) расходится с ценой
-// на карточке (basePrice = M, 250₽). В макете по умолчанию подсвечен M.
+// Выбор по умолчанию: размер M, первое молоко/температура, сладость 50%.
+// Дефолт именно M (а не первый из списка): basePrice товара соответствует M,
+// поэтому цена быстрого «+» в каталоге совпадает с ценой на карточке.
 export const getDefaultSelection = (product: Product): DrinkSelection => {
   const options = product.options;
+  const defaultSize =
+    options?.sizes.find((s) => s.size === 'M')?.size ??
+    options?.sizes[0]?.size ??
+    'M';
   return {
-    size: options?.sizes[0]?.size ?? 'M',
+    size: defaultSize,
     milk: options?.milkOptions[0]?.type,
     temperature: options?.temperatures[0],
     sweetness: options?.sweetnessAdjustable ? 50 : undefined,
