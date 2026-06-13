@@ -7,3 +7,4 @@ export {
   CURRENCY,
   LOCALE,
 } from './constants';
+export { ROUTES, getRoleHomePath } from './routes';
