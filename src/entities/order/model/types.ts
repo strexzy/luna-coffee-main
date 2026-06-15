@@ -29,6 +29,35 @@ export interface CreateOrderPayload {
   comment?: string;
 }
 
+// --- Статистика для админки (Фаза 7) ---
+
+// Период выборки статистики (границы — даты YYYY-MM-DD).
+export interface StatsRange {
+  from: string;
+  to: string;
+}
+
+export interface PopularProduct {
+  productId: string;
+  name: string;
+  quantity: number;
+  revenue: number;
+}
+
+export interface DailySales {
+  date: string; // YYYY-MM-DD
+  orders: number;
+  revenue: number;
+}
+
+export interface OrderStats {
+  totalOrders: number;
+  totalRevenue: number;
+  avgCheck: number;
+  popularProducts: PopularProduct[];
+  dailySales: DailySales[];
+}
+
 // Русские подписи статусов. Цвета бейджа — в ui/order-status-badge.
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   new: 'Новый',

@@ -7,8 +7,16 @@ import {
 } from '@shared/realtime';
 import type { OrderStatus } from '@shared/types';
 
-import type { CreateOrderPayload, Order } from '../model/types';
+import type {
+  CreateOrderPayload,
+  DailySales,
+  Order,
+  OrderStats,
+  PopularProduct,
+  StatsRange,
+} from '../model/types';
 import { MOCK_ORDERS } from './order.mock';
+import { generateOrderHistory } from './stats.mock';
 
 // API заказов. Создание и чтение через одни и те же функции для мока и бэка.
 
@@ -100,6 +108,73 @@ export const updateOrderStatus = async (
   }
   const { data } = await apiInstance.patch<Order>(`/orders/${orderId}/status`, {
     status,
+  });
+  return data;
+};
+
+// Статистика заказов за период (админка, ТЗ 3.6). В моке агрегируется из
+// детерминированной истории; на бэке — один запрос с теми же типами ответа.
+export const getOrderStats = async (range: StatsRange): Promise<OrderStats> => {
+  if (USE_MOCKS) {
+    const history = generateOrderHistory(new Date());
+    // Границы периода в UTC — согласованно с UTC-датами в истории.
+    const fromTime = new Date(`${range.from}T00:00:00Z`).getTime();
+    const toTime = new Date(`${range.to}T23:59:59Z`).getTime();
+    const inRange = history.filter((o) => {
+      const t = new Date(o.createdAt).getTime();
+      return t >= fromTime && t <= toTime;
+    });
+
+    const totalOrders = inRange.length;
+    const totalRevenue = inRange.reduce((sum, o) => sum + o.total, 0);
+    const avgCheck = totalOrders ? Math.round(totalRevenue / totalOrders) : 0;
+
+    // Популярные позиции — топ-5 по количеству.
+    const byProduct = new Map<string, PopularProduct>();
+    for (const order of inRange) {
+      for (const item of order.items) {
+        const current = byProduct.get(item.productId) ?? {
+          productId: item.productId,
+          name: item.name,
+          quantity: 0,
+          revenue: 0,
+        };
+        current.quantity += item.quantity;
+        current.revenue += item.revenue;
+        byProduct.set(item.productId, current);
+      }
+    }
+    const popularProducts = [...byProduct.values()]
+      .sort((a, b) => b.quantity - a.quantity)
+      .slice(0, 5);
+
+    // Продажи по дням — каждый день периода, включая нулевые.
+    const dayMs = 86_400_000;
+    const dailyMap = new Map<string, DailySales>();
+    for (let t = fromTime; t <= toTime; t += dayMs) {
+      const date = new Date(t).toISOString().slice(0, 10);
+      dailyMap.set(date, { date, orders: 0, revenue: 0 });
+    }
+    for (const order of inRange) {
+      const date = order.createdAt.slice(0, 10);
+      const day = dailyMap.get(date);
+      if (day) {
+        day.orders += 1;
+        day.revenue += order.total;
+      }
+    }
+    const dailySales = [...dailyMap.values()];
+
+    return withDelay({
+      totalOrders,
+      totalRevenue,
+      avgCheck,
+      popularProducts,
+      dailySales,
+    });
+  }
+  const { data } = await apiInstance.get<OrderStats>('/orders/stats', {
+    params: range,
   });
   return data;
 };

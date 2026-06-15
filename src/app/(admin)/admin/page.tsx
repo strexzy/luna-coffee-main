@@ -1,10 +1,5 @@
-import { PageStub } from '@app/_components/page-stub';
+import { StatsDashboard } from '@widgets/stats-dashboard';
 
 export default function AdminDashboardPage() {
-  return (
-    <PageStub
-      title="Статистика"
-      description="Дашборд продаж и экспорт CSV — Фаза 7."
-    />
-  );
+  return <StatsDashboard />;
 }
