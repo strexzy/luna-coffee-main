@@ -29,7 +29,8 @@ export const getOrderById = async (id: string): Promise<Order> => {
     if (!order) {
       throw new ApiError('Заказ не найден', 404);
     }
-    return withDelay(order);
+    // Копия, чтобы потребитель не держал ссылку на мутируемый мок-объект.
+    return withDelay({ ...order });
   }
   const { data } = await apiInstance.get<Order>(`/orders/${id}`);
   return data;
@@ -85,14 +86,17 @@ export const updateOrderStatus = async (
   status: OrderStatus,
 ): Promise<Order> => {
   if (USE_MOCKS) {
-    const order = MOCK_ORDERS.find((o) => o.id === orderId);
-    if (!order) {
+    const index = MOCK_ORDERS.findIndex((o) => o.id === orderId);
+    if (index < 0) {
       throw new ApiError('Заказ не найден', 404);
     }
-    order.status = status;
+    // Заменяем элемент новым объектом, а не мутируем общий — иначе ссылку на
+    // тот же объект могут держать другие части состояния (ревью #3).
+    const updated: Order = { ...MOCK_ORDERS[index], status };
+    MOCK_ORDERS[index] = updated;
     stopMockProgression(orderId);
     publishOrderStatus(orderId, status);
-    return withDelay(order);
+    return withDelay(updated);
   }
   const { data } = await apiInstance.patch<Order>(`/orders/${orderId}/status`, {
     status,

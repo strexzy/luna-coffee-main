@@ -1,6 +1,6 @@
 // Публичный API слайса entities/order.
 export type { Order, OrderItem, CreateOrderPayload } from './model/types';
-export { ORDER_STATUS_LABELS } from './model/types';
+export { ORDER_STATUS_LABELS, isOrder } from './model/types';
 export {
   getOrders,
   getOrderById,

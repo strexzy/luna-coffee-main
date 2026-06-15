@@ -5,7 +5,11 @@ import { useEffect, useRef } from 'react';
 import { USE_MOCKS, WS_URL } from '@shared/config';
 import type { OrderStatus } from '@shared/types';
 
-import { startMockProgression, subscribeOrderStatus } from './order-hub';
+import {
+  startMockProgression,
+  stopMockProgression,
+  subscribeOrderStatus,
+} from './order-hub';
 
 interface Options {
   // Стартовая точка мок-прогрессии. Если заказ уже ready — прогрессия не идёт.
@@ -40,14 +44,23 @@ export const useOrderSocket = (
       if (autoProgress && initialStatus) {
         startMockProgression(orderId, initialStatus);
       }
-      return unsubscribe;
+      return () => {
+        unsubscribe();
+        // Гасим авто-«кухню» при уходе с экрана, чтобы таймер не крутился
+        // без подписчиков (ревью #5).
+        if (autoProgress) stopMockProgression(orderId);
+      };
     }
 
     // Реальный режим: нативный WebSocket. Заменяет мок без изменения интерфейса.
     const socket = new WebSocket(`${WS_URL}/orders/${orderId}`);
     socket.onmessage = (event) => {
-      const data = JSON.parse(event.data) as { status: OrderStatus };
-      handle(data.status);
+      try {
+        const data = JSON.parse(event.data) as { status: OrderStatus };
+        handle(data.status);
+      } catch {
+        // Битый фрейм игнорируем, соединение не рвём (ревью #6).
+      }
     };
     return () => socket.close(1000, 'hook cleanup');
   }, [orderId, initialStatus, autoProgress]);

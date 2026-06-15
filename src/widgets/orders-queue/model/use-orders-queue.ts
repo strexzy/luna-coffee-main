@@ -2,7 +2,12 @@
 
 import { useEffect, useState } from 'react';
 
-import { getOrders, registerIncomingOrder, type Order } from '@entities/order';
+import {
+  getOrders,
+  isOrder,
+  registerIncomingOrder,
+  type Order,
+} from '@entities/order';
 import { useUpdateOrderStatus } from '@features/update-order-status';
 import { ApiError } from '@shared/api';
 import { subscribeAllOrderStatus, subscribeNewOrders } from '@shared/realtime';
@@ -55,10 +60,11 @@ export const useOrdersQueue = (): UseOrdersQueue => {
   // менять статус.
   useEffect(() => {
     const unsubscribe = subscribeNewOrders((payload) => {
-      const order = payload as Order;
-      registerIncomingOrder(order);
+      // Payload из недоверенного реалтайм-канала — проверяем форму (ревью #4).
+      if (!isOrder(payload)) return;
+      registerIncomingOrder(payload);
       setOrders((prev) =>
-        prev.some((o) => o.id === order.id) ? prev : [order, ...prev],
+        prev.some((o) => o.id === payload.id) ? prev : [payload, ...prev],
       );
     });
     return unsubscribe;

@@ -36,3 +36,17 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   preparing: 'Готовится',
   ready: 'Готов',
 };
+
+// Проверка формы заказа. Нужна для данных из недоверенного источника —
+// реалтайм-канала между вкладками (ревью #4): чужой/битый payload отсекаем.
+export const isOrder = (value: unknown): value is Order => {
+  if (typeof value !== 'object' || value === null) return false;
+  const o = value as Record<string, unknown>;
+  return (
+    typeof o.id === 'string' &&
+    typeof o.number === 'number' &&
+    Array.isArray(o.items) &&
+    typeof o.totalPrice === 'number' &&
+    typeof o.status === 'string'
+  );
+};
