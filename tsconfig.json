@@ -1,7 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    // webworker — типы ServiceWorkerGlobalScope для src/app/sw.ts (Serwist).
+    // Дубли глобалей dom/webworker не всплывают: skipLibCheck отключает
+    // проверку lib-файлов.
+    "lib": ["dom", "dom.iterable", "esnext", "webworker"],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
@@ -38,5 +41,5 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "public/sw.js", "public/swe-worker-*.js"]
 }
