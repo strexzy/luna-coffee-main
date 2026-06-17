@@ -12,6 +12,9 @@ export interface Order {
   id: string;
   // Человекочитаемый номер для клиента и бариста (№ 3435).
   number: number;
+  // Владелец заказа — для истории в личном кабинете (ТЗ §3.4). Опционально:
+  // заказ «с прилавка» владельца не имеет, а очередь бариста показывает все.
+  userId?: string;
   items: OrderItem[];
   totalPrice: number;
   status: OrderStatus;

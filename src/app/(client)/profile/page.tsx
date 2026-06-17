@@ -1,10 +1,7 @@
-import { PageStub } from '@app/_components/page-stub';
+import { Profile } from '@widgets/profile';
 
+// Личный кабинет клиента (ТЗ §3.4): профиль, редактирование, история заказов,
+// выход. Для гостя виджет покажет приглашение войти.
 export default function ProfilePage() {
-  return (
-    <PageStub
-      title="Личный кабинет"
-      description="Профиль, история заказов и текущий статус — Фазы 4–6."
-    />
-  );
+  return <Profile editable showOrders />;
 }

@@ -7,6 +7,8 @@ export const MOCK_ORDERS: Order[] = [
   {
     id: 'order-3435',
     number: 3435,
+    // Привязаны к тестовому клиенту (u-client) — наполняют его историю в ЛК.
+    userId: 'u-client',
     items: [
       {
         productId: 'cappuccino',
@@ -33,6 +35,7 @@ export const MOCK_ORDERS: Order[] = [
   {
     id: 'order-3436',
     number: 3436,
+    userId: 'u-client',
     items: [
       {
         productId: 'latte',

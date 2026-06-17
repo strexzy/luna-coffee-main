@@ -27,8 +27,10 @@ export const CLIENT_NAV: NavItem[] = [
 
 export const STAFF_NAV: NavItem[] = [
   { href: ROUTES.staff, label: 'Очередь', icon: 'queue' },
+  { href: ROUTES.staffAccount, label: 'Аккаунт', icon: 'profile' },
 ];
 
 export const ADMIN_NAV: NavItem[] = [
   { href: ROUTES.admin, label: 'Статистика', icon: 'stats' },
+  { href: ROUTES.adminAccount, label: 'Аккаунт', icon: 'profile' },
 ];

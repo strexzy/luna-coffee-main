@@ -12,6 +12,7 @@ export { ORDER_STATUS_LABELS, isOrder } from './model/types';
 export {
   getOrders,
   getOrderById,
+  getMyOrders,
   createOrder,
   updateOrderStatus,
   registerIncomingOrder,

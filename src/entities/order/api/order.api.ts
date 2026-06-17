@@ -5,6 +5,7 @@ import {
   publishOrderStatus,
   stopMockProgression,
 } from '@shared/realtime';
+import { useAuthStore } from '@shared/store';
 import type { OrderStatus } from '@shared/types';
 
 import type {
@@ -44,6 +45,22 @@ export const getOrderById = async (id: string): Promise<Order> => {
   return data;
 };
 
+// История заказов текущего пользователя (ТЗ §3.4, личный кабинет). В моке
+// фильтруем MOCK_ORDERS по владельцу (id из стора, как в createOrder) и
+// отдаём новые сверху. На бэке — один запрос «мои заказы» с теми же типами.
+export const getMyOrders = async (): Promise<Order[]> => {
+  if (USE_MOCKS) {
+    const userId = useAuthStore.getState().user?.id;
+    const mine = userId
+      ? MOCK_ORDERS.filter((o) => o.userId === userId).map((o) => ({ ...o }))
+      : [];
+    mine.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
+    return withDelay(mine);
+  }
+  const { data } = await apiInstance.get<Order[]>('/orders/my');
+  return data;
+};
+
 export const createOrder = async (
   payload: CreateOrderPayload,
 ): Promise<Order> => {
@@ -53,6 +70,9 @@ export const createOrder = async (
     const order: Order = {
       id: `order-${Date.now()}`,
       number: Math.floor(3000 + Math.random() * 7000),
+      // Владелец — текущий пользователь (для истории в ЛК). На бэке его
+      // проставит сервер по токену; в моке берём id из стора авторизации.
+      userId: useAuthStore.getState().user?.id,
       items: payload.items,
       totalPrice: payload.items.reduce(
         (sum, i) => sum + i.unitPrice * i.quantity,

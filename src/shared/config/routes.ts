@@ -13,7 +13,9 @@ export const ROUTES = {
   login: '/login',
   register: '/register',
   staff: '/staff',
+  staffAccount: '/staff/account',
   admin: '/admin',
+  adminAccount: '/admin/account',
 } as const;
 
 // Стартовая страница зоны по роли. Используется редиректом после входа

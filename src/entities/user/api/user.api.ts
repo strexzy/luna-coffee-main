@@ -6,6 +6,7 @@ import type {
   LoginPayload,
   LoginResponse,
   RegisterPayload,
+  UpdateProfilePayload,
   User,
 } from '../model/types';
 import {
@@ -93,5 +94,29 @@ export const getProfile = async (): Promise<User> => {
     return withDelay(user);
   }
   const { data } = await apiInstance.get<User>('/auth/profile');
+  return data;
+};
+
+// Редактирование профиля (ТЗ §3.4). В моке правим запись текущего пользователя
+// в MOCK_USERS (живёт до перезагрузки). На бэке — PATCH с теми же типами.
+export const updateProfile = async (
+  payload: UpdateProfilePayload,
+): Promise<User> => {
+  if (USE_MOCKS) {
+    const token = useAuthStore.getState().token;
+    const userId = token ? parseMockToken(token) : null;
+    const index = userId ? MOCK_USERS.findIndex((u) => u.id === userId) : -1;
+    if (index < 0) {
+      throw new ApiError('Не авторизован', 401);
+    }
+    const updated: User = {
+      ...MOCK_USERS[index],
+      name: payload.name,
+      phone: payload.phone,
+    };
+    MOCK_USERS[index] = updated;
+    return withDelay(updated);
+  }
+  const { data } = await apiInstance.patch<User>('/auth/profile', payload);
   return data;
 };
