@@ -4,6 +4,7 @@ export {
   MIN_PREPARATION_MINUTES,
   BREAKPOINTS,
   MOCK_DELAY_MS,
+  MAX_STATS_RANGE_DAYS,
   CURRENCY,
   LOCALE,
 } from './constants';

@@ -66,6 +66,21 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   ready: 'Готов',
 };
 
+// Проверка формы позиции заказа. Без неё payload с `items: [мусор]` проходил
+// guard и ронял OrderCard при рендере (ревью [Фаза 8]) — проверяем ключевые
+// поля, которые читают потребители (name/quantity в карточке, productId как
+// ключ, unitPrice в подсчётах).
+const isOrderItem = (value: unknown): value is OrderItem => {
+  if (typeof value !== 'object' || value === null) return false;
+  const i = value as Record<string, unknown>;
+  return (
+    typeof i.productId === 'string' &&
+    typeof i.name === 'string' &&
+    typeof i.unitPrice === 'number' &&
+    typeof i.quantity === 'number'
+  );
+};
+
 // Проверка формы заказа. Нужна для данных из недоверенного источника —
 // реалтайм-канала между вкладками (ревью #4): чужой/битый payload отсекаем.
 export const isOrder = (value: unknown): value is Order => {
@@ -75,6 +90,7 @@ export const isOrder = (value: unknown): value is Order => {
     typeof o.id === 'string' &&
     typeof o.number === 'number' &&
     Array.isArray(o.items) &&
+    o.items.every(isOrderItem) &&
     typeof o.totalPrice === 'number' &&
     typeof o.status === 'string'
   );

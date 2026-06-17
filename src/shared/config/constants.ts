@@ -15,6 +15,11 @@ export const BREAKPOINTS = {
 // Диапазон имитации сетевой задержки в мок-режиме (мс).
 export const MOCK_DELAY_MS = { min: 200, max: 500 } as const;
 
+// Максимальный размах периода статистики (дней). Ограничивает число дневных
+// бакетов и DOM-баров графика и защищает от spread огромного массива в
+// Math.max(...) (ревью [Фаза 8]). 366 — полный високосный год.
+export const MAX_STATS_RANGE_DAYS = 366;
+
 // Валюта приложения. Цены храним в рублях числом.
 export const CURRENCY = 'RUB';
 export const LOCALE = 'ru-RU';

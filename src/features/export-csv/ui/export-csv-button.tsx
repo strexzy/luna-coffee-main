@@ -28,7 +28,13 @@ export const ExportCsvButton = ({
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
+    // Ссылку нужно поместить в документ до click(): часть браузеров
+    // (Firefox, отдельные мобильные) не запускают скачивание для отсоединённого
+    // элемента (ревью [Фаза 8]). После — убираем и освобождаем objectURL.
+    link.style.display = 'none';
+    document.body.appendChild(link);
     link.click();
+    link.remove();
     URL.revokeObjectURL(url);
   };
 

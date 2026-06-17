@@ -44,8 +44,16 @@ export interface HistoryOrder {
 
 const HISTORY_DAYS = 35;
 
+// Кэш по дню-якорю (UTC): seed фиксирован, поэтому результат зависит только от
+// даты anchor. Без кэша ~840 заказов пересоздавались на каждый запрос
+// статистики, т.е. при каждой смене периода (ревью [Фаза 8]).
+let cache: { day: string; orders: HistoryOrder[] } | null = null;
+
 // История заказов за последние HISTORY_DAYS дней относительно anchor.
 export const generateOrderHistory = (anchor: Date): HistoryOrder[] => {
+  const day = anchor.toISOString().slice(0, 10);
+  if (cache && cache.day === day) return cache.orders;
+
   const rng = createRng(20260601); // фиксированный seed → стабильная история
   const orders: HistoryOrder[] = [];
 
@@ -77,5 +85,6 @@ export const generateOrderHistory = (anchor: Date): HistoryOrder[] => {
     }
   }
 
+  cache = { day, orders };
   return orders;
 };

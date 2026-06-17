@@ -16,7 +16,7 @@ import {
 import { useStats } from '../model/use-stats';
 
 export const StatsDashboard = () => {
-  const { range, setFrom, setTo, stats, isLoading, error } = useStats();
+  const { range, setFrom, setTo, bounds, stats, isLoading, error } = useStats();
 
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-6">
@@ -28,6 +28,7 @@ export const StatsDashboard = () => {
             <Input
               type="date"
               value={range.from}
+              min={bounds.fromMin}
               max={range.to}
               onChange={(e) => setFrom(e.target.value)}
               className="w-auto"
@@ -39,6 +40,7 @@ export const StatsDashboard = () => {
               type="date"
               value={range.to}
               min={range.from}
+              max={bounds.toMax}
               onChange={(e) => setTo(e.target.value)}
               className="w-auto"
             />

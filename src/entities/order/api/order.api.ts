@@ -1,5 +1,5 @@
 import { apiInstance, ApiError, withDelay } from '@shared/api';
-import { USE_MOCKS } from '@shared/config';
+import { MAX_STATS_RANGE_DAYS, USE_MOCKS } from '@shared/config';
 import {
   publishNewOrder,
   publishOrderStatus,
@@ -118,8 +118,18 @@ export const getOrderStats = async (range: StatsRange): Promise<OrderStats> => {
   if (USE_MOCKS) {
     const history = generateOrderHistory(new Date());
     // Границы периода в UTC — согласованно с UTC-датами в истории.
-    const fromTime = new Date(`${range.from}T00:00:00Z`).getTime();
+    const dayMs = 86_400_000;
     const toTime = new Date(`${range.to}T23:59:59Z`).getTime();
+    // Защитный потолок размаха (ревью [Фаза 8]): без него диапазон в годы
+    // породил бы тысячи дневных бакетов и DOM-баров, а spread такого массива в
+    // Math.max(...) рискует переполнить стек. Двигаем нижнюю границу вверх.
+    const minFromTime =
+      new Date(`${range.to}T00:00:00Z`).getTime() -
+      (MAX_STATS_RANGE_DAYS - 1) * dayMs;
+    const fromTime = Math.max(
+      new Date(`${range.from}T00:00:00Z`).getTime(),
+      minFromTime,
+    );
     const inRange = history.filter((o) => {
       const t = new Date(o.createdAt).getTime();
       return t >= fromTime && t <= toTime;
@@ -149,7 +159,6 @@ export const getOrderStats = async (range: StatsRange): Promise<OrderStats> => {
       .slice(0, 5);
 
     // Продажи по дням — каждый день периода, включая нулевые.
-    const dayMs = 86_400_000;
     const dailyMap = new Map<string, DailySales>();
     for (let t = fromTime; t <= toTime; t += dayMs) {
       const date = new Date(t).toISOString().slice(0, 10);
