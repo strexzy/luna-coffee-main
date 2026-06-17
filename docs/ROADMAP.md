@@ -20,8 +20,15 @@ Claude Code идёт по фазам последовательно. Не пер
 - ✅ **Фаза 5** — клиентский сценарий заказа (каталог, конструктор, корзина, оформление, статус)
 - ✅ **Фаза 6** — реал-тайм (мок-сокет + BroadcastChannel) и очередь бариста
 - ✅ **Фаза 7** — админка: статистика за период, популярные позиции, экспорт CSV
-- ⏭️ **Фаза 8** — PWA (next-pwa, manifest, service worker, offline) — следующая
-- ⬜ Фазы 9–10 — впереди
+- ✅ **Фаза 8** — PWA: Serwist (преемник next-pwa), manifest, service worker, offline-страница
+- ⏭️ **Фаза 9** — полировка и визуальная доводка под Figma — следующая
+- ⬜ Фаза 10 — впереди
+
+> **PWA-движок:** `next-pwa` (shadowwalker) заброшен в 2022 и несовместим с
+> Next 16 — взят его поддерживаемый преемник **Serwist** (`@serwist/next`, тот же
+> автор, Workbox). Обоснование зафиксировано в `CLAUDE.md`. Иконки PWA, favicon и
+> кофейные изображения берутся из импортированных ассетов (`assets/` → `public/`),
+> не генерируются.
 
 🎨 **Визуал:** фирменная зелёная тема (OKLCH, hue ~158) настроена в
 `globals.css` — весь интерфейс в бренде. Попиксельная доводка экранов под Figma
@@ -72,23 +79,44 @@ Claude Code идёт по фазам последовательно. Не пер
 
 Из ревью Фазы 7 (админка) — обязательны к устранению на Фазе 8:
 
-- [ ] **[Фаза 8] Неограниченный период статистики.** `getOrderStats` создаёт
+- [x] **[Фаза 8] Неограниченный период статистики.** `getOrderStats` создаёт
       бакет на каждый день диапазона, а `SalesChart` — бар на каждый день; date-
       инпуты принимают любые даты, поэтому период в годы → тысячи бакетов/DOM-узлов
       и риск `Math.max(...spread)`. Ограничить размах периода (≤ ~366 дней) в
       `getOrderStats`/UI (`entities/order/api/order.api.ts`, `widgets/stats-dashboard`).
-- [ ] **[Фаза 8] `generateOrderHistory` пересоздаётся на каждый запрос.** ~840
+- [x] **[Фаза 8] `generateOrderHistory` пересоздаётся на каждый запрос.** ~840
       заказов генерируются заново при каждой смене периода — мемоизировать по дню-
       якорю (`entities/order/api/order.api.ts`, `stats.mock.ts`).
-- [ ] **[Фаза 8] `ExportCsvButton`: ссылка не добавлена в DOM перед `click()`.**
+- [x] **[Фаза 8] `ExportCsvButton`: ссылка не добавлена в DOM перед `click()`.**
       Часть браузеров требует `<a>` в документе для скачивания — append+remove для
       совместимости (`features/export-csv/ui/export-csv-button.tsx`).
-- [ ] **[Фаза 8] `toCsv`: одиночный `\r` не экранируется.** Значение с возвратом
+- [x] **[Фаза 8] `toCsv`: одиночный `\r` не экранируется.** Значение с возвратом
       каретки без `\n` может разорвать строку CSV — добавить `\r` в проверку
       (`features/export-csv/lib/to-csv.ts`).
-- [ ] **[Фаза 8] `isOrder` не проверяет форму элементов `items`.** Payload с
+- [x] **[Фаза 8] `isOrder` не проверяет форму элементов `items`.** Payload с
       `items: [мусор]` пройдёт guard и уронит `OrderCard` при рендере — проверять
       хотя бы ключевые поля позиций (`entities/order/model/types.ts`).
+
+Ревью+тесты Фазы 8 выявили и СРАЗУ устранили (блокеры самой фазы, не отложены):
+
+- [x] **[Фаза 8] `next dev` падал из-за Serwist.** Serwist добавляет webpack-хук
+      даже с `disable`, а Next 16 в dev на Turbopack считает «webpack без turbopack»
+      ошибкой (exit 1). Подключать Serwist только в production-сборке
+      (`next.config.ts`).
+- [x] **[Фаза 8] ESLint линтовал сгенерированный `public/sw.js`.** Бандл SW давал
+      86 проблем — добавлен в `globalIgnores` (`eslint.config.mjs`).
+
+Из ревью Фазы 8 (PWA) — на Фазу 9 (визуал/полировка), не блокеры:
+
+- [ ] **[Фаза 9] Offline-страница — эмодзи ☕️ вместо фирменного знака.** Заменить
+      на SVG-логотип при визуальной доводке (`src/app/~offline/page.tsx`).
+- [ ] **[Фаза 9] Maskable-иконки заданы и как `any`.** Текущие PNG сгенерированы
+      как maskable (с паддингом); в роли `any` выглядят мельче. При замене на
+      финальные ассеты Figma завести отдельную не-паддинговую `any`-иконку
+      (`src/app/manifest.ts`).
+- [ ] **[Фаза 9] Интерфейсные SVG из `assets/app interface icons/` не задействованы.**
+      Сейчас иконки берутся из `lucide-react`. Решить: оставить lucide или перейти
+      на ассеты Figma в рамках визуальной доводки.
 
 - [ ] **[Фаза 9] `selectCartCount` — мёртвый код.** Либо сделать бейдж количества на
       иконке корзины в навбаре, либо удалить (`shared/store/cart.store.ts`).
@@ -208,17 +236,26 @@ Claude Code идёт по фазам последовательно. Не пер
 
 ---
 
-## Фаза 8 — PWA
+## Фаза 8 — PWA ✅
 
 Цель: соответствие критериям PWA.
 
-- [ ] Настройка next-pwa (withPWA, disable в dev, skipWaiting).
-- [ ] manifest.json (Луна Кофе, иконки 96/192/512, maskable, standalone, тема).
-- [ ] Регистрация service worker (клиентский компонент в корневом layout).
-- [ ] Offline-страница + fallback.document.
-- [ ] Метаданные/иконки через Metadata API (favicon, apple-touch-icon).
+- [x] Настройка Serwist `@serwist/next` (withSerwistInit, disable в dev,
+      skipWaiting+clientsClaim в воркере). `next-pwa` заброшен → Serwist.
+- [x] manifest (Луна Кофе, иконки 192/512 any+maskable, standalone, тема —
+      фирменный зелёный `#007142`) через `app/manifest.ts` Metadata API.
+- [x] Регистрация service worker — клиентский компонент `ServiceWorkerRegister`
+      в корневом layout (register:false, регистрируем сами; только в production).
+- [x] Offline-страница `/~offline` + fallback на навигационные запросы (Serwist
+      `fallbacks.entries`, matcher по `request.destination === 'document'`).
+- [x] Метаданные/иконки через Metadata API (favicon.ico/svg/96, apple-touch,
+      manifest, appleWebApp, themeColor в `viewport`). Иконки — из ассетов.
 
 Готово, когда: приложение устанавливается, работает офлайн, проходит PWA-аудит.
+
+Проверено: `next build --webpack` собирает `public/sw.js`; в production SW
+регистрируется и берёт страницу под контроль (clientsClaim), при offline переход
+на незакэшированный маршрут отдаёт `/~offline` (Playwright + системный Chrome).
 
 ---
 

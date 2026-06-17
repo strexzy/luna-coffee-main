@@ -27,8 +27,14 @@
 | Стили         | Tailwind CSS                           |
 | UI-компоненты | Shadcn/UI                              |
 | Реал-тайм     | WebSocket (нативный, обёрнут в хук)    |
-| PWA           | next-pwa (Workbox)                     |
+| PWA           | Serwist (преемник next-pwa, Workbox)   |
 | Линтинг       | ESLint + Prettier                      |
+
+> **PWA-движок (решение Фазы 8):** изначально в стеке значился `next-pwa`, но
+> пакет shadowwalker заброшен в 2022 (до App Router / React 19 / Next 16). Взят
+> **Serwist** (`@serwist/next`) — поддерживаемый преемник от того же автора, тот
+> же Workbox под капотом, обновляется и совместим с Next 16. Классический
+> webpack-режим ложится на сборку `next build --webpack`.
 
 Запрещено вводить: Redux, Vite, styled-components, MUI, react-query/SWR,
 axios-альтернативы. Если кажется, что нужна новая зависимость — сначала спроси.
