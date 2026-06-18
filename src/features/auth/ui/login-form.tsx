@@ -31,9 +31,9 @@ export const LoginForm = () => {
   });
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm rounded-3xl shadow-sm">
       <CardHeader>
-        <CardTitle>Вход</CardTitle>
+        <CardTitle className="text-2xl">Вход</CardTitle>
         <CardDescription>Войдите в аккаунт «Луна Кофе»</CardDescription>
       </CardHeader>
       <CardContent>
@@ -44,6 +44,7 @@ export const LoginForm = () => {
               id="email"
               type="email"
               autoComplete="email"
+              className="h-12 rounded-xl"
               {...register('email')}
             />
             {errors.email ? (
@@ -57,6 +58,7 @@ export const LoginForm = () => {
               id="password"
               type="password"
               autoComplete="current-password"
+              className="h-12 rounded-xl"
               {...register('password')}
             />
             {errors.password ? (
@@ -69,7 +71,11 @@ export const LoginForm = () => {
           {/* Ошибка от сервера/мока (неверные данные) — над кнопкой. */}
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-full text-base"
+            disabled={isPending}
+          >
             {isPending ? 'Вход…' : 'Войти'}
           </Button>
         </form>

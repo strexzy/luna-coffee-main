@@ -31,16 +31,21 @@ export const RegisterForm = () => {
   });
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm rounded-3xl shadow-sm">
       <CardHeader>
-        <CardTitle>Регистрация</CardTitle>
+        <CardTitle className="text-2xl">Регистрация</CardTitle>
         <CardDescription>Создайте аккаунт «Луна Кофе»</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(submit)} className="space-y-4" noValidate>
           <div className="space-y-1.5">
             <Label htmlFor="name">Имя</Label>
-            <Input id="name" autoComplete="name" {...register('name')} />
+            <Input
+              id="name"
+              autoComplete="name"
+              className="h-12 rounded-xl"
+              {...register('name')}
+            />
             {errors.name ? (
               <p className="text-sm text-destructive">{errors.name.message}</p>
             ) : null}
@@ -52,6 +57,7 @@ export const RegisterForm = () => {
               id="email"
               type="email"
               autoComplete="email"
+              className="h-12 rounded-xl"
               {...register('email')}
             />
             {errors.email ? (
@@ -65,6 +71,7 @@ export const RegisterForm = () => {
               id="password"
               type="password"
               autoComplete="new-password"
+              className="h-12 rounded-xl"
               {...register('password')}
             />
             {errors.password ? (
@@ -80,6 +87,7 @@ export const RegisterForm = () => {
               id="confirmPassword"
               type="password"
               autoComplete="new-password"
+              className="h-12 rounded-xl"
               {...register('confirmPassword')}
             />
             {errors.confirmPassword ? (
@@ -91,7 +99,11 @@ export const RegisterForm = () => {
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-          <Button type="submit" className="w-full" disabled={isPending}>
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-full text-base"
+            disabled={isPending}
+          >
             {isPending ? 'Создаём…' : 'Зарегистрироваться'}
           </Button>
         </form>

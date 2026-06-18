@@ -1,3 +1,4 @@
+import { WifiOff } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -10,15 +11,17 @@ export const metadata: Metadata = {
 // отрисовалась офлайн.
 export default function OfflinePage() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
-      <span className="text-6xl" aria-hidden>
-        ☕️
+    <main className="flex min-h-screen flex-col items-center justify-center gap-5 px-6 text-center">
+      <span className="flex size-20 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+        <WifiOff className="size-9" />
       </span>
-      <h1 className="text-2xl font-bold">Нет соединения</h1>
-      <p className="max-w-sm text-muted-foreground">
-        Похоже, интернет пропал. Уже открытые страницы остаются доступны, а
-        остальное вернётся, как только связь восстановится.
-      </p>
+      <div className="space-y-2">
+        <h1 className="text-2xl font-extrabold tracking-tight">Нет соединения</h1>
+        <p className="max-w-sm text-muted-foreground">
+          Похоже, интернет пропал. Уже открытые страницы остаются доступны, а
+          остальное вернётся, как только связь восстановится.
+        </p>
+      </div>
     </main>
   );
 }
