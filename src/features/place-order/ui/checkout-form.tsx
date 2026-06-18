@@ -2,13 +2,21 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import Link from 'next/link';
+import { MapPin } from 'lucide-react';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { MIN_PREPARATION_MINUTES, ROUTES } from '@shared/config';
 import { formatPrice } from '@shared/lib';
 import { selectCartTotal, useCartStore } from '@shared/store';
-import { Button, EmptyState, Input, Label, Textarea } from '@shared/ui';
+import {
+  Button,
+  EmptyState,
+  IconArrowLeft,
+  Input,
+  Label,
+  Textarea,
+} from '@shared/ui';
 
 import { checkoutSchema, type CheckoutValues } from '../model/checkout.schema';
 import { usePlaceOrder } from '../model/use-place-order';
@@ -38,9 +46,7 @@ export const CheckoutForm = () => {
 
   // Дефолтное время получения проставляем на клиенте после монтирования:
   // Date.now() в рендере на пререндере дал бы время сборки и сломал гидрацию.
-  // setValue — это RHF, не React-стейт, поэтому в эффекте безопасно. Нижнюю
-  // границу не выставляем атрибутом min (это лишь хинт пикера) — её гарантирует
-  // Zod-валидация при отправке.
+  // setValue — это RHF, не React-стейт, поэтому в эффекте безопасно.
   useEffect(() => {
     setValue(
       'pickupTime',
@@ -57,7 +63,7 @@ export const CheckoutForm = () => {
           title="Корзина пуста"
           description="Нечего оформлять — добавьте напиток из меню."
           action={
-            <Button asChild>
+            <Button asChild className="rounded-full">
               <Link href={ROUTES.menu}>Перейти в меню</Link>
             </Button>
           }
@@ -67,78 +73,112 @@ export const CheckoutForm = () => {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-4 py-6">
-      <h1 className="mb-4 text-2xl font-bold">Оформление</h1>
+    <div className="mx-auto w-full max-w-5xl px-4 pt-4 pb-8">
+      <Link
+        href={ROUTES.cart}
+        className="mb-4 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <IconArrowLeft className="size-5" size={20} />
+        Корзина
+      </Link>
+      <h1 className="mb-5 text-3xl font-extrabold tracking-tight">Оформление</h1>
 
-      {/* Состав заказа */}
-      <section className="mb-6">
-        <h2 className="mb-2 font-semibold">Состав заказа</h2>
-        <div className="divide-y rounded-lg border">
-          {items.map((item) => (
-            <div
-              key={item.id}
-              className="flex items-center justify-between px-4 py-3"
-            >
-              <div className="min-w-0">
-                <p className="font-medium">{item.name}</p>
-                {item.optionsLabel ? (
-                  <p className="truncate text-sm text-muted-foreground">
-                    {item.optionsLabel}
-                  </p>
-                ) : null}
-              </div>
-              <span className="whitespace-nowrap text-sm">
-                {item.quantity} × {formatPrice(item.unitPrice)}
+      <div className="grid gap-6 lg:grid-cols-[1fr_22rem] lg:items-start lg:gap-8">
+        {/* Форма */}
+        <form
+          onSubmit={handleSubmit(submit)}
+          noValidate
+          className="order-2 space-y-6 lg:order-1"
+        >
+          {/* Пункт самовывоза */}
+          <div className="flex items-start gap-3 rounded-3xl bg-card p-5 ring-1 ring-border/50">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+              <MapPin className="size-5" />
+            </span>
+            <div>
+              <p className="font-semibold">Самовывоз</p>
+              <p className="text-sm text-muted-foreground">
+                Луна Кофе, ул. Свердлова, 56, Кировград
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-4 rounded-3xl bg-card p-5 ring-1 ring-border/50">
+            <div className="space-y-1.5">
+              <Label htmlFor="pickupTime">Время получения</Label>
+              <Input
+                id="pickupTime"
+                type="datetime-local"
+                className="h-12 rounded-xl"
+                {...register('pickupTime')}
+              />
+              <p className="text-xs text-muted-foreground">
+                Не ранее чем через {MIN_PREPARATION_MINUTES} минут.
+              </p>
+              {errors.pickupTime ? (
+                <p className="text-sm text-destructive">
+                  {errors.pickupTime.message}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="comment">Комментарий к заказу</Label>
+              <Textarea
+                id="comment"
+                placeholder="Например: без сахара"
+                className="rounded-xl"
+                {...register('comment')}
+              />
+              {errors.comment ? (
+                <p className="text-sm text-destructive">
+                  {errors.comment.message}
+                </p>
+              ) : null}
+            </div>
+          </div>
+
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          <Button
+            type="submit"
+            className="h-12 w-full rounded-full text-base"
+            disabled={isPending}
+          >
+            {isPending ? 'Оформляем…' : `Оформить за ${formatPrice(total)}`}
+          </Button>
+        </form>
+
+        {/* Сводка заказа */}
+        <aside className="order-1 lg:order-2 lg:sticky lg:top-20">
+          <div className="rounded-3xl bg-card p-5 ring-1 ring-border/50">
+            <h2 className="font-bold">Состав заказа</h2>
+            <ul className="mt-4 space-y-3">
+              {items.map((item) => (
+                <li key={item.id} className="flex justify-between gap-3 text-sm">
+                  <span className="min-w-0">
+                    <span className="font-medium">{item.name}</span>
+                    {item.optionsLabel ? (
+                      <span className="block truncate text-muted-foreground">
+                        {item.optionsLabel}
+                      </span>
+                    ) : null}
+                  </span>
+                  <span className="whitespace-nowrap text-muted-foreground">
+                    {item.quantity} × {formatPrice(item.unitPrice)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-4">
+              <span className="font-semibold">Итого</span>
+              <span className="text-xl font-extrabold">
+                {formatPrice(total)}
               </span>
             </div>
-          ))}
-          <div className="flex items-center justify-between px-4 py-3 font-bold">
-            <span>Итого</span>
-            <span>{formatPrice(total)}</span>
           </div>
-        </div>
-      </section>
-
-      <form onSubmit={handleSubmit(submit)} className="space-y-4" noValidate>
-        <div className="space-y-1.5">
-          <Label htmlFor="pickupTime">Время получения</Label>
-          <Input
-            id="pickupTime"
-            type="datetime-local"
-            {...register('pickupTime')}
-          />
-          <p className="text-xs text-muted-foreground">
-            Не ранее чем через {MIN_PREPARATION_MINUTES} минут.
-          </p>
-          {errors.pickupTime ? (
-            <p className="text-sm text-destructive">
-              {errors.pickupTime.message}
-            </p>
-          ) : null}
-        </div>
-
-        <div className="space-y-1.5">
-          <Label htmlFor="comment">Комментарий к заказу</Label>
-          <Textarea
-            id="comment"
-            placeholder="Например: без сахара"
-            {...register('comment')}
-          />
-          {errors.comment ? (
-            <p className="text-sm text-destructive">{errors.comment.message}</p>
-          ) : null}
-        </div>
-
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
-
-        <Button
-          type="submit"
-          className="h-12 w-full text-base"
-          disabled={isPending}
-        >
-          {isPending ? 'Оформляем…' : `Оформить за ${formatPrice(total)}`}
-        </Button>
-      </form>
+        </aside>
+      </div>
     </div>
   );
 };
