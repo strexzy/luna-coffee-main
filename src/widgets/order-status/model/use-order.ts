@@ -20,6 +20,17 @@ export const useOrder = (id: string): UseOrder => {
   const [status, setStatus] = useState<OrderFetchStatus>('loading');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Сброс при смене id (переход заказ→заказ из истории ЛК): иначе до загрузки
+  // нового кратко виден прошлый заказ. Паттерн React «корректировка состояния
+  // при смене пропа» — setState в рендере, а не в эффекте (ревью-аудит).
+  const [trackedId, setTrackedId] = useState(id);
+  if (id !== trackedId) {
+    setTrackedId(id);
+    setOrder(null);
+    setStatus('loading');
+    setErrorMessage(null);
+  }
+
   useEffect(() => {
     let active = true;
     getOrderById(id)

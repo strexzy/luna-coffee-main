@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+import { MAX_CART_ITEM_QUANTITY } from '@shared/config';
 import type { CartItem } from '@shared/types';
 
 // Заготовка стора корзины. Полная логика (мердж позиций с одинаковыми
@@ -24,7 +25,14 @@ export const useCartStore = create<CartState>((set) => ({
         return {
           items: state.items.map((i) =>
             i.id === item.id
-              ? { ...i, quantity: i.quantity + item.quantity }
+              ? {
+                  ...i,
+                  // Не выше предела позиции (ревью-аудит).
+                  quantity: Math.min(
+                    i.quantity + item.quantity,
+                    MAX_CART_ITEM_QUANTITY,
+                  ),
+                }
               : i,
           ),
         };
@@ -34,13 +42,13 @@ export const useCartStore = create<CartState>((set) => ({
   removeItem: (id) =>
     set((state) => ({ items: state.items.filter((i) => i.id !== id) })),
   setQuantity: (id, quantity) =>
-    set((state) => ({
-      // Количество < 1 не имеет смысла — такие значения отбрасываем.
-      items:
-        quantity < 1
-          ? state.items
-          : state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
-    })),
+    set((state) => {
+      // Вне диапазона [1, MAX] игнорируем — кнопки в UI и так ограничены.
+      if (quantity < 1 || quantity > MAX_CART_ITEM_QUANTITY) return state;
+      return {
+        items: state.items.map((i) => (i.id === id ? { ...i, quantity } : i)),
+      };
+    }),
   clear: () => set({ items: [] }),
 }));
 
@@ -48,7 +56,3 @@ export const useCartStore = create<CartState>((set) => ({
 // селективно: useCartStore(selectCartTotal).
 export const selectCartTotal = (state: CartState): number =>
   state.items.reduce((sum, i) => sum + i.unitPrice * i.quantity, 0);
-
-// Суммарное количество единиц во всех позициях (для бейджа/саммари).
-export const selectCartCount = (state: CartState): number =>
-  state.items.reduce((sum, i) => sum + i.quantity, 0);

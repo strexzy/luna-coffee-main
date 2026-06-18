@@ -41,8 +41,9 @@ export const EditProfileForm = ({ user, onSaved }: Props) => {
         <Input
           id="phone"
           type="tel"
+          inputMode="numeric"
           autoComplete="tel"
-          placeholder="+7 900 000-00-00"
+          placeholder="79001234567"
           {...register('phone')}
         />
         {errors.phone ? (

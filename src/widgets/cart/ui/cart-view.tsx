@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Minus, Plus, ShoppingBag, Trash2 } from 'lucide-react';
 
-import { ROUTES } from '@shared/config';
+import { MAX_CART_ITEM_QUANTITY, ROUTES } from '@shared/config';
 import { formatPrice } from '@shared/lib';
 import { selectCartTotal, useCartStore } from '@shared/store';
 import type { CartItem } from '@shared/types';
@@ -99,6 +99,7 @@ const CartRow = ({ item }: { item: CartItem }) => {
           variant="outline"
           className="size-8 rounded-full"
           aria-label="Увеличить"
+          disabled={item.quantity >= MAX_CART_ITEM_QUANTITY}
           onClick={() => setQuantity(item.id, item.quantity + 1)}
         >
           <Plus className="size-4" />

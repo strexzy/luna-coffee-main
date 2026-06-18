@@ -8,7 +8,7 @@ export const MOCK_USERS: User[] = [
     name: 'Иван Клиентов',
     email: 'client@luna.test',
     role: 'client',
-    phone: '+7 900 000-00-01',
+    phone: '79000000001',
   },
   {
     id: 'u-staff',

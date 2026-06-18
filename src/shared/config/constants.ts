@@ -4,13 +4,8 @@
 // Минимальный интервал до времени получения заказа (ТЗ, п. 3.2).
 export const MIN_PREPARATION_MINUTES = 10;
 
-// Контрольные брейкпоинты адаптивности (ТЗ, п. 4). Совпадают с Tailwind:
-// базовые стили — мобильные (375), md — планшет, xl — десктоп.
-export const BREAKPOINTS = {
-  mobile: 375,
-  tablet: 768,
-  desktop: 1280,
-} as const;
+// Верхний предел количества одной позиции в корзине.
+export const MAX_CART_ITEM_QUANTITY = 99;
 
 // Диапазон имитации сетевой задержки в мок-режиме (мс).
 export const MOCK_DELAY_MS = { min: 200, max: 500 } as const;
