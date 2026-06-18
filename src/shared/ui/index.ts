@@ -34,3 +34,7 @@ export { Spinner } from './spinner';
 export { Slider } from './slider';
 export { Switch } from './switch';
 export { EmptyState } from './empty-state';
+// Точечные анимации появления (Motion / React Bits).
+export { Reveal } from './reveal';
+// Иконки интерфейса из макета Figma (currentColor → темизируются классами).
+export * from './icons';

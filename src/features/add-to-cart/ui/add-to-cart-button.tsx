@@ -1,10 +1,8 @@
 'use client';
 
-import { Plus } from 'lucide-react';
-
 import type { DrinkSelection, Product } from '@entities/product';
 import { cn } from '@shared/lib';
-import { Button } from '@shared/ui';
+import { Button, IconPlus } from '@shared/ui';
 
 import { useAddToCart } from '../model/use-add-to-cart';
 
@@ -37,9 +35,9 @@ export const AddToCartButton = ({
         size="icon"
         aria-label={label}
         onClick={handleClick}
-        className={cn('size-8 rounded-full', className)}
+        className={cn('size-9 rounded-full shadow-sm', className)}
       >
-        <Plus className="size-4" />
+        <IconPlus className="size-5" size={20} />
       </Button>
     );
   }

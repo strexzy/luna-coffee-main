@@ -1,17 +1,17 @@
 import type { Metadata, Viewport } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Manrope, Geist_Mono } from 'next/font/google';
 
 import { Toaster } from '@shared/ui';
 
 import { ServiceWorkerRegister } from './_components/service-worker';
 import './globals.css';
 
-// Geist поддерживает кириллицу через подмножество latin-ext не полностью,
-// но next/font загружает нужные глифы автоматически; при проблемах с
-// кириллицей шрифт пересмотрим в фазе 9 (полировка).
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
+// Manrope — геометричный гротеск с полной поддержкой кириллицы и широким
+// диапазоном начертаний (под жирные заголовки макета). Variable-шрифт: грузим
+// весь диапазон весов. Латиница + кириллица для русского интерфейса.
+const fontSans = Manrope({
+  variable: '--font-sans',
+  subsets: ['latin', 'cyrillic'],
 });
 
 const geistMono = Geist_Mono({
@@ -62,7 +62,7 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fontSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {/* Регистрация service worker (PWA) — клиентский компонент, без UI. */}

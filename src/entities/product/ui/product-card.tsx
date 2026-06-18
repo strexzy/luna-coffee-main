@@ -1,10 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Star } from 'lucide-react';
 import type { ReactNode } from 'react';
 
 import { formatPrice } from '@shared/lib';
-import { Card } from '@shared/ui';
+import { IconStar } from '@shared/ui';
 
 import type { Product } from '../model/types';
 
@@ -21,21 +20,21 @@ interface Props {
 // Каталожная карточка товара. Презентационная и самодостаточная.
 export const ProductCard = ({ product, href, action }: Props) => {
   const media = (
-    <div className="relative aspect-square w-full">
+    <div className="relative aspect-square w-full overflow-hidden rounded-2xl">
       <Image
         src={product.imageUrl}
         alt={product.name}
         fill
         sizes="(max-width: 768px) 50vw, 25vw"
-        className="object-cover"
+        className="object-cover transition-transform duration-500 group-hover:scale-105"
       />
       {/* Рейтинг поверх изображения (★ 4.8). */}
-      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-xs font-medium">
-        <Star className="size-3 fill-yellow-400 text-yellow-400" />
+      <span className="absolute right-2 top-2 inline-flex items-center gap-1 rounded-full bg-background/90 px-2 py-0.5 text-xs font-semibold shadow-sm backdrop-blur">
+        <IconStar className="size-3.5 text-amber-400" size={14} />
         {product.rating.value.toFixed(1)}
       </span>
       {product.isPromo ? (
-        <span className="absolute left-2 top-2 rounded-full bg-primary px-2 py-0.5 text-xs font-medium text-primary-foreground">
+        <span className="absolute left-2 top-2 rounded-full bg-primary px-2.5 py-0.5 text-xs font-semibold text-primary-foreground shadow-sm">
           Акция
         </span>
       ) : null}
@@ -43,18 +42,18 @@ export const ProductCard = ({ product, href, action }: Props) => {
   );
 
   const info = (
-    <div className="px-3 pt-3">
-      <h3 className="font-semibold leading-tight">{product.name}</h3>
-      <p className="text-sm text-muted-foreground">
+    <div className="px-1 pt-2.5">
+      <h3 className="font-bold leading-tight">{product.name}</h3>
+      <p className="line-clamp-1 text-xs text-muted-foreground">
         {product.shortDescription}
       </p>
     </div>
   );
 
   return (
-    <Card className="gap-0 overflow-hidden p-0">
+    <div className="group rounded-3xl bg-card p-2.5 shadow-sm ring-1 ring-border/50 transition-shadow hover:shadow-md">
       {href ? (
-        <Link href={href} className="block transition-opacity hover:opacity-90">
+        <Link href={href} className="block">
           {media}
           {info}
         </Link>
@@ -65,10 +64,12 @@ export const ProductCard = ({ product, href, action }: Props) => {
         </>
       )}
 
-      <div className="mt-2 flex items-center justify-between px-3 pb-3">
-        <span className="font-bold">{formatPrice(product.basePrice)}</span>
+      <div className="mt-2.5 flex items-center justify-between px-1">
+        <span className="text-lg font-extrabold">
+          {formatPrice(product.basePrice)}
+        </span>
         {action}
       </div>
-    </Card>
+    </div>
   );
 };
